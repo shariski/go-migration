@@ -316,19 +316,43 @@ dan nggak perlu memastikan folder `migrations/` ikut terbawa.
 
 ## Batasan down migration
 
-```sql
--- 000004_drop_users_name.up.sql
-ALTER TABLE users DROP COLUMN name;
-```
+Down migration nggak membatalkan apa pun. Dia cuma menjalankan SQL
+yang kita tulis sendiri di file `.down.sql`.
+
+Jadi dia cuma bisa mengembalikan informasi yang masih tersimpan
+di tempat lain di database.
 
 ```sql
--- 000004_drop_users_name.down.sql
+-- 000002_add_phone_to_users.up.sql
+ALTER TABLE users ADD COLUMN phone TEXT;
+
+-- 000002_add_phone_to_users.down.sql
+ALTER TABLE users DROP COLUMN phone;
+```
+
+Nggak ada kolom lain yang menyimpan nomor HP. Rollback ke versi ini
+menghapus datanya permanen — `up` lagi, kolomnya kembali dalam keadaan kosong.
+
+`make demo-rollback`
+
+---
+
+## Kasus yang kelihatan berhasil
+
+Di `000004` kolom `name` dihapus, dan file `.down.sql`-nya menyusun ulang
+dari kolom lain:
+
+```sql
 ALTER TABLE users ADD COLUMN name TEXT;
+UPDATE users SET name = concat_ws(' ', first_name, last_name);
 ```
 
-Kolomnya kembali, datanya nggak.
+Ini memang berhasil. Tapi bukan karena down migration bisa mengembalikan
+data — melainkan karena `000003` sengaja menyimpan informasi yang sama
+di `first_name` dan `last_name`.
 
-`DROP COLUMN` menghapus data secara permanen.
+Kalau `first_name` sempat diubah user sebelum rollback, hasilnya jadi
+nilai baru yang kelihatan wajar tapi bukan data aslinya.
 
 ---
 
