@@ -26,25 +26,34 @@ from pptx.util import Inches, Pt
 # ----------------------------------------------------------------- tampilan
 
 FONT_BODY = "Arial"
-FONT_MONO = "Courier New"
 
-INK = RGBColor(0x1B, 0x25, 0x33)  # judul, teks utama
-BODY = RGBColor(0x37, 0x44, 0x51)  # paragraf
-MUTED = RGBColor(0x6B, 0x77, 0x84)  # nomor slide, keterangan
-ACCENT = RGBColor(0x00, 0xAD, 0xD8)  # biru Go
-CODE_BG = RGBColor(0xF3, 0xF6, 0xF8)
-CODE_INK = RGBColor(0x1B, 0x27, 0x33)
-TABLE_HEAD = RGBColor(0xE8, 0xF6, 0xFA)
-RULE = RGBColor(0xDD, 0xE3, 0xE8)
+# Nama font harus persis seperti yang dikenal Google Slides. Di Slides,
+# JetBrains Mono perlu ditambahkan dulu lewat menu font > "More fonts".
+FONT_MONO = "JetBrains Mono"
+
+# Warna sengaja dibikin kontras tinggi. Slide ini dipakai lewat share
+# screen Google Meet, yang kompresinya berat -- teks abu-abu muda dan
+# font tipis jadi yang paling dulu hancur.
+INK = RGBColor(0x11, 0x1A, 0x24)  # judul
+BODY = RGBColor(0x21, 0x2C, 0x38)  # paragraf
+MUTED = RGBColor(0x62, 0x6E, 0x7B)  # nomor slide
+ACCENT = RGBColor(0x00, 0x8C, 0xB0)  # biru Go, digelapkan biar kebaca
+CODE_BG = RGBColor(0xEC, 0xF2, 0xF6)
+CODE_INK = RGBColor(0x0E, 0x1A, 0x26)
+TABLE_HEAD = RGBColor(0xDD, 0xEF, 0xF6)
+RULE = RGBColor(0xC9, 0xD4, 0xDC)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 
 SLIDE_W, SLIDE_H = 13.333, 7.5
 MARGIN = 0.85
 CONTENT_W = SLIDE_W - 2 * MARGIN
-BODY_TOP = 1.72
-BODY_LIMIT = 6.80  # batas bawah sebelum nomor slide
+BODY_TOP = 1.68
+BODY_LIMIT = 6.88  # batas bawah sebelum nomor slide
 
-SZ_BODY, SZ_CODE, SZ_TABLE, SZ_H3 = 17.0, 13.0, 14.0, 23.0
+# Ukuran font dinaikkan dari default "enak dibaca di laptop" ke
+# "masih kebaca di HP lewat share screen Meet".
+SZ_BODY, SZ_CODE, SZ_TABLE, SZ_H3 = 21.0, 17.0, 18.0, 27.0
+SZ_TITLE, SZ_TITLE_BIG = 33.0, 46.0
 
 # Jarak antar blok, dalam inci. Blok yang punya "kotak" sendiri (code dan
 # tabel) butuh napas lebih besar, kalau nggak barisnya kelihatan nempel
@@ -244,9 +253,9 @@ def fit_scale(blocks: list[Block]) -> float:
     scale = 1.0
     for _ in range(14):
         h = content_height(blocks, scale)
-        if h <= room or scale <= 0.62:
+        if h <= room or scale <= 0.74:
             break
-        scale = max(0.62, scale * math.sqrt(room / h))
+        scale = max(0.74, scale * math.sqrt(room / h))
     return scale
 
 
@@ -303,7 +312,7 @@ def render_title_slide(slide, blocks):
     title = next((b for b in blocks if b.kind == "h1"), None)
     _, tf = textbox(slide, MARGIN, 1.55, CONTENT_W, 1.0)
     p = tf.paragraphs[0]
-    add_runs(p, title.text if title else "", 42, INK, bold=True)
+    add_runs(p, title.text if title else "", SZ_TITLE_BIG, INK, bold=True)
 
     y = 3.0
     for b in blocks:
@@ -311,13 +320,13 @@ def render_title_slide(slide, blocks):
             continue
         if b.kind == "h3":
             _, tf = textbox(slide, MARGIN, y, CONTENT_W, 0.5)
-            add_runs(tf.paragraphs[0], b.text, 22, ACCENT, bold=True, mono=True)
+            add_runs(tf.paragraphs[0], b.text, 26, ACCENT, bold=True, mono=True)
             y += 0.62
         elif b.kind == "code":
-            y = render_code(slide, b, y, 12.0) + 0.2
+            y = render_code(slide, b, y, 15.0) + 0.2
         elif b.kind == "para":
             _, tf = textbox(slide, MARGIN, y, CONTENT_W, 0.42)
-            add_runs(tf.paragraphs[0], b.text, 17, BODY)
+            add_runs(tf.paragraphs[0], b.text, 20, BODY)
             y += 0.44
 
 
@@ -393,7 +402,7 @@ def render_content_slide(slide, blocks, number):
     head = next((b for b in blocks if b.kind == "h2"), None)
     if head:
         _, tf = textbox(slide, MARGIN, 0.60, CONTENT_W, 0.72)
-        add_runs(tf.paragraphs[0], head.text, 29, INK, bold=True)
+        add_runs(tf.paragraphs[0], head.text, SZ_TITLE, INK, bold=True)
         bar = slide.shapes.add_shape(
             MSO_SHAPE.RECTANGLE, Inches(MARGIN), Inches(1.35), Inches(1.05), Inches(0.055)
         )
@@ -471,7 +480,7 @@ def render_content_slide(slide, blocks, number):
     p.alignment = PP_ALIGN.RIGHT
     run = p.add_run()
     run.text = str(number)
-    run.font.size = Pt(11)
+    run.font.size = Pt(12)
     run.font.color.rgb = MUTED
     run.font.name = FONT_BODY
     return scale

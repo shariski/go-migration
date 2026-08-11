@@ -316,11 +316,9 @@ dan nggak perlu memastikan folder `migrations/` ikut terbawa.
 
 ## Batasan down migration
 
-Down migration nggak membatalkan apa pun. Dia cuma menjalankan SQL
-yang kita tulis sendiri di file `.down.sql`.
-
-Jadi dia cuma bisa mengembalikan informasi yang masih tersimpan
-di tempat lain di database.
+Down migration nggak membatalkan apa pun. Dia cuma menjalankan SQL yang
+kita tulis sendiri, jadi cuma bisa mengembalikan informasi yang masih
+tersimpan di tempat lain.
 
 ```sql
 -- 000002_add_phone_to_users.up.sql
@@ -330,10 +328,8 @@ ALTER TABLE users ADD COLUMN phone TEXT;
 ALTER TABLE users DROP COLUMN phone;
 ```
 
-Nggak ada kolom lain yang menyimpan nomor HP. Rollback ke versi ini
-menghapus datanya permanen — `up` lagi, kolomnya kembali dalam keadaan kosong.
-
-`make demo-rollback`
+Nggak ada kolom lain yang menyimpan nomor HP. Rollback menghapus datanya
+permanen, dan `up` lagi cuma mengembalikan kolomnya dalam keadaan kosong.
 
 ---
 
@@ -358,8 +354,7 @@ nilai baru yang kelihatan wajar tapi bukan data aslinya.
 
 ## Kapan down migration berguna
 
-Down migration cuma bisa mengembalikan informasi yang masih tersimpan
-di tempat lain di database. Dia menghitung ulang, bukan mengembalikan.
+Intinya: down migration itu menghitung ulang, bukan mengembalikan.
 
 **Di lokal**, down berguna: salah bikin migration, mundur, perbaiki.
 
