@@ -81,4 +81,9 @@ demo-mini: reset ## Demo: migration runner bikinan sendiri (~90 baris)
 	@$(PSQL) -c "SELECT * FROM mini_schema_migrations;"
 	@$(PSQL) -c "\d products"
 
-.PHONY: help up down psql reset demo-gorm demo-migrate demo-rollback demo-dirty demo-mini
+# ---------------------------------------------------------------- slide
+slides: ## Generate slides/presentasi.pptx dari presentasi.md
+	@python3 -c "import pptx" 2>/dev/null || { echo "Butuh python-pptx:  pip install python-pptx"; exit 1; }
+	@python3 slides/build_pptx.py
+
+.PHONY: help up down psql reset demo-gorm demo-migrate demo-rollback demo-dirty demo-mini slides

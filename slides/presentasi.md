@@ -467,6 +467,10 @@ semua pod menjalankan bersamaan dan mengandalkan advisory lock.
 Dump schema yang sudah ada jadi `000001_init.up.sql`, lanjutkan manual
 dari situ.
 
+---
+
+## Catatan tambahan untuk Q&A (2)
+
 **Seed data di migration**
 Data referensi seperti daftar provinsi atau status order boleh.
 Data dummy sebaiknya nggak, karena ikut terbawa ke production.
