@@ -1,0 +1,18 @@
+-- Kesalahan klasik yang lolos code review tapi meledak di production.
+--
+-- Waktu nambah kolom, Postgres harus ngasih nilai ke semua baris yang sudah
+-- ada sebelumnya. Nggak ada DEFAULT berarti dia cuma bisa ngisi NULL, padahal
+-- NOT NULL melarang NULL. Perintahnya bertabrakan sama dirinya sendiri:
+--
+--   ERROR: column "status" of relation "orders" contains null values
+--
+-- Kalau tabelnya KOSONG, ini malah sukses -- nggak ada baris yang perlu diisi,
+-- jadi nggak ada tabrakan. Itulah kenapa kesalahan ini lolos terus: database
+-- lokal dan CI biasanya kosong, sementara production penuh data.
+--
+-- Di demo ini 000001 sengaja masukin 2 baris dulu, biar gagalnya kejadian
+-- juga di laptop kalian.
+--
+-- Perbaikannya: kasih DEFAULT, biar Postgres punya nilai buat baris lama.
+--   ALTER TABLE orders ADD COLUMN status TEXT NOT NULL DEFAULT 'pending';
+ALTER TABLE orders ADD COLUMN status TEXT NOT NULL;

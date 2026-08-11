@@ -1,0 +1,6 @@
+CREATE TABLE orders (
+    id     BIGSERIAL PRIMARY KEY,
+    amount NUMERIC(12,2) NOT NULL
+);
+
+INSERT INTO orders (amount) VALUES (150000), (275000);
